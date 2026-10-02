@@ -12,38 +12,18 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [history, setHistory] = useState([]);
 
-  const handleSubmit = async () => {
-    const prompt = {
-      role: "user",
-      content: input,
-    };
-
-    setMessages([...messages, prompt]);
-
-    await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.REACT_APP_OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-3.5-turbo",
-        messages: [...messages, prompt],
-      }),
-    })
-      .then((data) => data.json())
-      .then((data) => {
-        const res = data.choices[0].message.content;
-        setMessages((messages) => [
-          ...messages,
-          {
-            role: "assistant",
-            content: res,
-          },
-        ]);
-        setHistory((history) => [...history, { question: input, answer: res }]);
-        setInput("");
-      });
+  const handleSubmit = () => {
+    const question = input.trim();
+    if (!question) return;
+    // This tutorial demonstrates UI state only. No provider request or browser key.
+    const answer = `Local demo reply to: ${question}`;
+    setMessages((previous) => [
+      ...previous,
+      { role: "user", content: question },
+      { role: "assistant", content: answer },
+    ]);
+    setHistory((previous) => [...previous, { question, answer }]);
+    setInput("");
   };
 
   const clear = () => {
@@ -52,40 +32,35 @@ export default function App() {
   };
 
   return (
-    <div className="App">
+    <main className="App" aria-label="Local chat UI demo">
       <div className="Column">
         <h3 className="Title">Chat Messages</h3>
-        <div className="Content">
-          {messages.map((el, i) => {
-            return <Message key={i} role={el.role} content={el.content} />;
-          })}
+        <p>Local UI demo: replies are deterministic examples, not AI output. Messages are not sent to a provider.</p>
+        <div className="Content" aria-live="polite">
+          {messages.map((el, i) => <Message key={i} role={el.role} content={el.content} />)}
         </div>
         <Input
           value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onClick={input ? handleSubmit : undefined}
+          onChange={(event) => setInput(event.target.value)}
+          onClick={input.trim() ? handleSubmit : undefined}
         />
       </div>
       <div className="Column">
         <h3 className="Title">History</h3>
         <div className="Content">
-          {history.map((el, i) => {
-            return (
-              <History
-                key={i}
-                question={el.question}
-                onClick={() =>
-                  setMessages([
-                    { role: "user", content: history[i].question },
-                    { role: "assistant", content: history[i].answer },
-                  ])
-                }
-              />
-            );
-          })}
+          {history.map((entry, i) => (
+            <History
+              key={i}
+              question={entry.question}
+              onClick={() => setMessages([
+                { role: "user", content: entry.question },
+                { role: "assistant", content: entry.answer },
+              ])}
+            />
+          ))}
         </div>
         <Clear onClick={clear} />
       </div>
-    </div>
+    </main>
   );
 }
