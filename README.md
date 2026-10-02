@@ -28,7 +28,12 @@ npm test -- --watchAll=false --runInBand
 npm run build
 ```
 
-The tests exercise the local UI, history/clear behavior, blank-input handling and absence of provider fetches. They do not certify full browser accessibility, responsive layout or a live API integration. Build files are local artifacts, not a deployment.
+The tests exercise the local UI, history/clear behavior, blank-input handling and absence of provider fetches. They do not certify full browser accessibility, responsive layout or a live API integration. The 2026-10-02 candidate passed the locked install with lifecycle scripts disabled,
+both UI behavior tests and `npm run build` on Node 24 with CI mode enabled. The
+existing CRA Babel/Browserslist maintenance warnings remain; dependency versions
+were not upgraded. Candidate CI repeats the install/tests/build with read-only
+repository permissions and has no deployment step. Build files are local
+artifacts, not a deployment.
 
 ## Source and contributions
 
